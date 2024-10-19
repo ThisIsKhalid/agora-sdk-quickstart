@@ -7,7 +7,7 @@ import {
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { MdMic, MdMicOff, MdCall, MdCallEnd } from "react-icons/md";
 
 export default function Basics() {
@@ -31,11 +31,11 @@ export default function Basics() {
   usePublish([localMicrophoneTrack]);
 
   // Immediately mute the local audio playback so you don't hear yourself
-  useEffect(() => {
-    if (localMicrophoneTrack) {
-      localMicrophoneTrack.setVolume(0); // Set the local audio volume to 0
-    }
-  }, [localMicrophoneTrack]); // Ensure the effect runs when the local track is available
+//   useEffect(() => {
+//     if (localMicrophoneTrack) {
+//       localMicrophoneTrack.setVolume(0); // Set the local audio volume to 0
+//     }
+//   }, [localMicrophoneTrack]); // Ensure the effect runs when the local track is available
 
   const remoteUsers = useRemoteUsers();
 
@@ -64,7 +64,7 @@ export default function Basics() {
                   <span className="text-sm font-medium text-gray-700">You</span>
                 </LocalUser>
               </div>
-              {/* {remoteUsers.map((user) => (
+              {remoteUsers.map((user) => (
                 <div
                   key={user.uid}
                   className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md"
@@ -78,8 +78,8 @@ export default function Basics() {
                     </span>
                   </RemoteUser>
                 </div>
-              ))} */}
-              {remoteUsers.map((user) => {
+              ))}
+              {/* {remoteUsers.map((user) => {
                 // Play the remote user's audio track if it exists
                 if (user.audioTrack) {
                   user.audioTrack.play(); // This will automatically play the audio
@@ -100,7 +100,7 @@ export default function Basics() {
                     </RemoteUser>
                   </div>
                 );
-              })}
+              })} */}
             </div>
           </div>
         ) : (
