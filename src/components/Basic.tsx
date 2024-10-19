@@ -7,7 +7,7 @@ import {
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MdCall, MdCallEnd, MdMic, MdMicOff } from "react-icons/md";
 
 export default function Basics() {
@@ -28,9 +28,19 @@ export default function Basics() {
 
   const [micOn, setMic] = useState(true);
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
+
+  // Publish the local audio track so others can hear you
   usePublish([localMicrophoneTrack]);
+
   const remoteUsers = useRemoteUsers();
-  
+
+  // Mute local playback to avoid hearing yourself
+  useEffect(() => {
+    if (localMicrophoneTrack) {
+      localMicrophoneTrack.setVolume(0); // Ensure the volume is set to 0 locally
+    }
+  }, [localMicrophoneTrack]);
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md">
