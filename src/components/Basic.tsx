@@ -7,8 +7,8 @@ import {
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
-import {  useState } from "react";
-import { MdMic, MdMicOff, MdCall, MdCallEnd } from "react-icons/md";
+import { useState } from "react";
+import { MdCall, MdCallEnd, MdMic, MdMicOff } from "react-icons/md";
 
 export default function Basics() {
   const [calling, setCalling] = useState(false);
@@ -29,26 +29,8 @@ export default function Basics() {
   const [micOn, setMic] = useState(true);
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
   usePublish([localMicrophoneTrack]);
-
-  // Immediately mute the local audio playback so you don't hear yourself
-//   useEffect(() => {
-//     if (localMicrophoneTrack) {
-//       localMicrophoneTrack.setVolume(0); // Set the local audio volume to 0
-//     }
-//   }, [localMicrophoneTrack]); // Ensure the effect runs when the local track is available
-
   const remoteUsers = useRemoteUsers();
-
-  console.log(remoteUsers);
-
-//   useEffect(() => {
-//     remoteUsers.forEach((user) => {
-//       if (user.audioTrack) {
-//         user.audioTrack.play(); // Ensure the audio track is played
-//       }
-//     });
-//   }, [remoteUsers]); // Dependency array ensures it runs when remote users update
-
+  
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md">
@@ -79,28 +61,6 @@ export default function Basics() {
                   </RemoteUser>
                 </div>
               ))}
-              {/* {remoteUsers.map((user) => {
-                // Play the remote user's audio track if it exists
-                if (user.audioTrack) {
-                  user.audioTrack.play(); // This will automatically play the audio
-                }
-
-                return (
-                  <div
-                    key={user.uid}
-                    className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md"
-                  >
-                    <RemoteUser
-                      cover="https://www.agora.io/en/wp-content/uploads/2022/10/3d-spatial-audio-icon.svg"
-                      user={user}
-                    >
-                      <span className="text-sm font-medium text-gray-700">
-                        {user.uid}
-                      </span>
-                    </RemoteUser>
-                  </div>
-                );
-              })} */}
             </div>
           </div>
         ) : (
