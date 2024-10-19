@@ -3,11 +3,11 @@ import {
   RemoteUser,
   useIsConnected,
   useJoin,
+  useLocalMicrophoneTrack,
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
-import AgoraRTC from "agora-rtc-sdk-ng";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MdCall, MdCallEnd, MdMic, MdMicOff } from "react-icons/md";
 
 export default function Basics() {
@@ -17,7 +17,6 @@ export default function Basics() {
   const [channel, setChannel] = useState("");
   const [token, setToken] = useState("");
 
-  // Join the Agora channel with the provided credentials
   useJoin(
     {
       appid: appId,
@@ -27,41 +26,9 @@ export default function Basics() {
     calling
   );
 
-  // Create local microphone track with echo cancellation, noise suppression, and gain control
   const [micOn, setMic] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [localMicrophoneTrack, setLocalMicrophoneTrack] = useState<any>(null);
-
-  useEffect(() => {
-    if (calling && !localMicrophoneTrack) {
-      async function initializeMicrophoneTrack() {
-        const track = await AgoraRTC.createMicrophoneAudioTrack({
-          AEC: true, // Enable echo cancellation
-          ANS: true, // Enable noise suppression
-          AGC: true, // Enable automatic gain control
-        });
-
-        // Explicitly disable local playback of this track
-        track.setVolume(0); // Ensure no audio is played locally
-        setLocalMicrophoneTrack(track);
-      }
-
-      initializeMicrophoneTrack();
-    }
-
-    // Cleanup microphone track on unmount
-    return () => {
-      if (localMicrophoneTrack) {
-        localMicrophoneTrack.close();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [calling]); // Avoid adding localMicrophoneTrack to dependencies to prevent reinitialization loops
-
-  // Publish the microphone track for others to hear
+  const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
   usePublish([localMicrophoneTrack]);
-
-  // Fetch remote users (participants)
   const remoteUsers = useRemoteUsers();
 
   return (
