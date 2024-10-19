@@ -3,11 +3,11 @@ import {
   RemoteUser,
   useIsConnected,
   useJoin,
-  useLocalMicrophoneTrack,
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
-import { useState, useEffect } from "react";
+import AgoraRTC from "agora-rtc-sdk-ng";
+import { useEffect, useState } from "react";
 import { MdCall, MdCallEnd, MdMic, MdMicOff } from "react-icons/md";
 
 export default function Basics() {
@@ -17,6 +17,7 @@ export default function Basics() {
   const [channel, setChannel] = useState("");
   const [token, setToken] = useState("");
 
+  // Join the Agora channel with the provided credentials
   useJoin(
     {
       appid: appId,
@@ -26,20 +27,42 @@ export default function Basics() {
     calling
   );
 
+  // Create local microphone track with echo cancellation, noise suppression, and gain control
   const [micOn, setMic] = useState(true);
-  const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [localMicrophoneTrack, setLocalMicrophoneTrack] = useState<any>(null);
 
-  // Publish the local audio track so others can hear you
+  useEffect(() => {
+    if (calling && !localMicrophoneTrack) {
+      async function initializeMicrophoneTrack() {
+        const track = await AgoraRTC.createMicrophoneAudioTrack({
+          AEC: true, // Enable echo cancellation
+          ANS: true, // Enable noise suppression
+          AGC: true, // Enable automatic gain control
+        });
+
+        // Explicitly disable local playback of this track
+        track.setVolume(0); // Ensure no audio is played locally
+        setLocalMicrophoneTrack(track);
+      }
+
+      initializeMicrophoneTrack();
+    }
+
+    // Cleanup microphone track on unmount
+    return () => {
+      if (localMicrophoneTrack) {
+        localMicrophoneTrack.close();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calling]); // Avoid adding localMicrophoneTrack to dependencies to prevent reinitialization loops
+
+  // Publish the microphone track for others to hear
   usePublish([localMicrophoneTrack]);
 
+  // Fetch remote users (participants)
   const remoteUsers = useRemoteUsers();
-
-  // Mute local playback to avoid hearing yourself
-  useEffect(() => {
-    if (localMicrophoneTrack) {
-      localMicrophoneTrack.setVolume(0); // Ensure the volume is set to 0 locally
-    }
-  }, [localMicrophoneTrack]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
